@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Input, Card, CardText, CardBody, CardTitle,Button } from 'reactstrap';
+import { Input, Card, CardText, CardBody, CardTitle, Button } from 'reactstrap';
 
 
 // RULES
@@ -13,9 +13,6 @@ import { Input, Card, CardText, CardBody, CardTitle,Button } from 'reactstrap';
 //    Four of a kind: 4 cards with the same value. Ranked by the value of the 4 cards.
 //    Straight flush: 5 cards of the same suit with consecutive values. Ranked by the highest card in the hand.
 
-// HYPOTHESIS
-//    If pairs with the same values for each player : Tie
-
 
 function App() {
 
@@ -26,37 +23,53 @@ function App() {
   const handleCompare = () => {
     let rankJ1 = calculateRank(hand1)
     let rankJ2 = calculateRank(hand2)
-    console.log(rankJ1, rankJ2)
 
     if (rankJ1.rank > rankJ2.rank) {
       if (rankJ1.highValueTwo === 0) {
 
-        console.log(rankJ1.figure)
-        setResult(`J1 gagne avec ${rankJ1.figure} : ${rankJ1.highValue}`)
+        setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.highValue)}`)
       } else {
-        setResult(`J1 gagne avec ${rankJ1.figure} : ${rankJ1.highValue} sur ${rankJ1.highValueTwo}`)
+        setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.highValue)} sur ${reFormatValue(rankJ1.highValueTwo)}`)
       }
     } else if (rankJ2.rank > rankJ1.rank) {
       if (rankJ2.highValueTwo === 0) {
-        setResult(`J2 gagne avec ${rankJ2.figure} : ${rankJ2.highValue}`)
+        setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.highValue)}`)
       } else {
-        setResult(`J2 gagne avec ${rankJ2.figure} : ${rankJ2.highValue} sur ${rankJ2.highValueTwo}`)
+        setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.highValue)} sur ${reFormatValue(rankJ2.highValueTwo)}`)
       }
     } else {
       if (rankJ1.highValue > rankJ2.highValue) {
         if (rankJ1.highValueTwo === 0) {
-          setResult(`J1 gagne avec ${rankJ1.figure} : ${rankJ1.highValue}`)
+          setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.highValue)}`)
         } else {
-          setResult(`J1 gagne avec ${rankJ1.figure} : ${rankJ1.highValue} sur ${rankJ1.highValueTwo}`)
+          setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.highValue)} sur ${reFormatValue(rankJ1.highValueTwo)}`)
         }
       } else if (rankJ2.highValue > rankJ1.highValue) {
         if (rankJ2.highValueTwo === 0) {
-          setResult(`J2 gagne avec ${rankJ2.figure} : ${rankJ2.highValue}`)
+          setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.highValue)}`)
         } else {
-          setResult(`J2 gagne avec ${rankJ2.figure} : ${rankJ2.highValue} sur ${rankJ2.highValueTwo}`)
+          setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.highValue)} sur ${reFormatValue(rankJ2.highValueTwo)}`)
         }
       } else {
-        setResult('Egalité')
+        let indice = 4
+        while (rankJ1.hand[indice] === rankJ2.hand[indice] && indice >= 0) {
+          indice--
+        }
+        if (rankJ1.hand[indice] > rankJ2.hand[indice]) {
+          if (rankJ1.highValueTwo === 0) {
+            setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.hand[indice])}`)
+          } else {
+            setResult(`J1 gagne avec ${rankJ1.figure} : ${reFormatValue(rankJ1.highValue)} sur ${reFormatValue(rankJ1.highValueTwo)} avec ${reFormatValue(rankJ1.hand[indice])}`)
+          }
+        } else if (rankJ1.hand[indice] < rankJ2.hand[indice]) {
+          if (rankJ2.highValueTwo === 0) {
+            setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.hand[indice])}`)
+          } else {
+            setResult(`J2 gagne avec ${rankJ2.figure} : ${reFormatValue(rankJ2.highValue)} sur ${reFormatValue(rankJ2.highValueTwo)} avec ${reFormatValue(rankJ2.hand[indice])}`)
+          }
+        } else {
+          setResult('Egalité')
+        }
       }
     }
   }
@@ -97,28 +110,29 @@ function App() {
 
     // Calculate highest rank
     let res = {
+      hand: tabHand1,
       rank: 1,
-      highValue: reFormatValue(higher),
+      highValue: higher,
       highValueTwo: 0,
       figure: 'high card'
     }
 
     if (straightFlush) {
-      res = { rank: 9, highValue: reFormatValue(higher), highValueTwo: 0, figure: 'straight flush' }
+      res = { hand: tabHand1, rank: 9, highValue: higher, highValueTwo: 0, figure: 'straight flush' }
     } else if (fourOfKind) {
-      res = { rank: 8, highValue: reFormatValue(valueSameCards), highValueTwo: 0, figure: 'four of a kind' }
+      res = { hand: tabHand1, rank: 8, highValue: valueSameCards, highValueTwo: 0, figure: 'four of a kind' }
     } else if (fullHouse) {
-      res = { rank: 7, highValue: reFormatValue(valueSameCards), highValueTwo: reFormatValue(valueSameCardsTwo), figure: 'full house' }
+      res = { hand: tabHand1, rank: 7, highValue: valueSameCards, highValueTwo: valueSameCardsTwo, figure: 'full house' }
     } else if (flush) {
-      res = { rank: 6, highValue: reFormatValue(higher), highValueTwo: 0, figure: 'flush' }
+      res = { hand: tabHand1, rank: 6, highValue: higher, highValueTwo: 0, figure: 'flush' }
     } else if (straight) {
-      res = { rank: 5, highValue: reFormatValue(higher), highValueTwo: 0, figure: 'straight' }
+      res = { hand: tabHand1, rank: 5, highValue: higher, highValueTwo: 0, figure: 'straight' }
     } else if (threeOfKind) {
-      res = { rank: 4, highValue: reFormatValue(valueSameCards), highValueTwo: 0, figure: 'three of a kind' }
+      res = { hand: tabHand1, rank: 4, highValue: valueSameCards, highValueTwo: 0, figure: 'three of a kind' }
     } else if (doublePair) {
-      res = { rank: 3, highValue: reFormatValue(valueSameCards), highValueTwo: reFormatValue(valueSameCardsTwo), figure: 'two pairs' }
+      res = { hand: tabHand1, rank: 3, highValue: valueSameCards, highValueTwo: valueSameCardsTwo, figure: 'two pairs' }
     } else if (pair) {
-      res = { rank: 2, highValue: reFormatValue(valueSameCards), highValueTwo: 0, figure: 'pair' }
+      res = { hand: tabHand1, rank: 2, highValue: valueSameCards, highValueTwo: 0, figure: 'pair' }
     }
 
     return res
